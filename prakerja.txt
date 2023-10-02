@@ -2,3 +2,5 @@ Ini dari git remoete
 Ini perubahan 1 dari remote
 
 Ini dari git clone
+
+ini membuat conflict dari deva (remote)
