@@ -21,5 +21,5 @@ func InitDatabase() {
 }
 
 func InitMigration(){
-	DB.AutoMigrate(&models.News{})
+	DB.AutoMigrate(&models.News{}, &models.User{})
 }
