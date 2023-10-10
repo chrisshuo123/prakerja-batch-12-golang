@@ -1,30 +1,63 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/labstack/echo/v4"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
-type User struct {
-	Name string
-	Email string
+type News struct {
+	Id uint `gorm:"primaryKey" json:"id" form:"id"`
+	Title string `gorm:"not null" json:"title"`
+	Content string `json:"content"`
+	Author string `json:"author"`
 }
 
 func main(){
+	InitDatabase()
 	e := echo.New()
-	e.GET("/users", GetUsersController)
-	e.GET("/users/:id", GetDetailUsersController)
+	e.POST("/news", CreateNewsController)
+	e.GET("/news", GetNewsController)
 	e.Start(":8000")
 }
 
-func GetUsersController(c echo.Context) error {
-	country := c.QueryParam("country")
+var DB *gorm.DB
 
-	var users = []User{{country, "alta@gmail.com"}}
-	return c.JSON(200, users)
+func InitDatabase() {
+	dsn := "root:123ABC4d.@tcp(127.0.0.1:3306)/prakerja12?charset=utf8mb4&parseTime=True&loc=Local"
+	var err error
+	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+        panic("failed to connect database")
+    }
+	InitMigration()
 }
 
-func GetDetailUsersController(c echo.Context) error {
-	id := c.Param("id")
-	var user = User{id, "alta@gmail.com"}
-	return c.JSON(200, user)
+func InitMigration(){
+	DB.AutoMigrate(&News{})
 }
+
+func CreateNewsController(c echo.Context) error {
+	var newsRequest News
+	c.Bind(&newsRequest)
+
+	result := DB.Create(&newsRequest)
+	if result.Error != nil {
+        return c.JSON(500, result.Error.Error())
+    }
+	return c.JSON(200, newsRequest)
+} 
+
+func GetNewsController(c echo.Context) error {
+	var news []News
+	result := DB.Find(&news)
+	if result.Error != nil {
+		return c.JSON(http.StatusInternalServerError, result.Error.Error())
+	}
+	return c.JSON(http.StatusOK, news)
+}
+
+
+
