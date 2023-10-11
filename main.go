@@ -8,6 +8,7 @@ import (
 )
 
 func main(){
+	configs.LoadEnv()
 	configs.InitDatabase()
 	e := echo.New()
 	routes.InitRoute(e)

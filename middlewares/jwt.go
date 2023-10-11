@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -23,6 +24,6 @@ func GenerateJWTToken(id uint, name string) string {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	t, _ := token.SignedString([]byte("123"))
+	t, _ := token.SignedString([]byte(os.Getenv("JWT_SECRET_KEY")))
 	return t
 }
